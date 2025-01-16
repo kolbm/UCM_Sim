@@ -19,8 +19,8 @@ def compute_motion(radius, angular_velocity, initial_phase, time):
     y = radius * np.sin(angular_velocity * time + initial_phase)
     vx = -radius * angular_velocity * np.sin(angular_velocity * time + initial_phase)
     vy = radius * angular_velocity * np.cos(angular_velocity * time + initial_phase)
-    fx = -radius * angular_velocity**2 * np.cos(angular_velocity * time + initial_phase)
-    fy = -radius * angular_velocity**2 * np.sin(angular_velocity * time + initial_phase)
+    fx = -x * angular_velocity**2
+    fy = -y * angular_velocity**2
     return x, y, vx, vy, fx, fy
 
 # Animation display
@@ -43,6 +43,7 @@ ax.legend()
 
 # Placeholder for updating plot
 plot_placeholder = st.empty()
+info_placeholder = st.empty()
 
 # Run animation
 start_button = st.button("Start Simulation")
@@ -58,8 +59,13 @@ if start_button:
         particle.set_data([x], [y])  # Wrap x and y in lists
         velocity_arrow.set_offsets([x, y])
         velocity_arrow.set_UVC(vx, vy)
+
+        # Ensure force arrow points toward the center without crossing the circle
+        force_magnitude = np.sqrt(fx**2 + fy**2)
+        fx_adjusted = (fx / force_magnitude) * radius
+        fy_adjusted = (fy / force_magnitude) * radius
         force_arrow.set_offsets([x, y])
-        force_arrow.set_UVC(fx, fy)
+        force_arrow.set_UVC(fx_adjusted, fy_adjusted)
 
         # Redraw the plot
         ax.clear()
@@ -72,11 +78,16 @@ if start_button:
         ax.add_artist(plt.Circle((0, 0), radius, color='blue', fill=False, linestyle='--'))
         ax.plot([x], [y], 'ro', label='Particle')
         ax.quiver(x, y, vx, vy, angles='xy', scale_units='xy', scale=1, color='green', label='Velocity')
-        ax.quiver(x, y, fx, fy, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
+        ax.quiver(x, y, fx_adjusted, fy_adjusted, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
         ax.legend()
 
         # Update plot in placeholder
         plot_placeholder.pyplot(fig)
+
+        # Display force and velocity information
+        velocity_magnitude = np.sqrt(vx**2 + vy**2)
+        info_placeholder.markdown(f"**Velocity Magnitude:** {velocity_magnitude:.2f} m/s  
+                                  **Force Magnitude:** {force_magnitude:.2f} N")
 
         # Increment time
         t += dt
