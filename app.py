@@ -86,8 +86,7 @@ if start_button:
 
         # Display force and velocity information
         velocity_magnitude = np.sqrt(vx**2 + vy**2)
-        info_placeholder.markdown(f"**Velocity Magnitude:** {velocity_magnitude:.2f} m/s  
-                                  **Force Magnitude:** {force_magnitude:.2f} N")
+        info_placeholder.markdown(f"**Velocity Magnitude:** {velocity_magnitude:.2f} m/s  \n**Force Magnitude:** {force_magnitude:.2f} N")
 
         # Increment time
         t += dt
