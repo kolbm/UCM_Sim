@@ -49,7 +49,7 @@ if start_button:
         x, y = compute_position(radius, angular_velocity, initial_phase, t)
 
         # Update particle position
-        particle.set_data(x, y)
+        particle.set_data([x], [y])  # Wrap x and y in lists
         ax.draw_artist(particle)
 
         # Display updated plot
