@@ -38,7 +38,7 @@ ax.add_artist(circle)
 
 # Particle
 particle, = ax.plot([], [], 'ro', label='Particle')
-velocity_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='green', label='Velocity')
+velocity_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=0.1, color='green', label='Velocity')
 force_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
 ax.legend()
 
@@ -78,7 +78,7 @@ if start_button:
         # Re-add elements
         ax.add_artist(plt.Circle((0, 0), radius, color='blue', fill=False, linestyle='--'))
         ax.plot([x], [y], 'ro', label='Particle')
-        ax.quiver(x, y, vx, vy, angles='xy', scale_units='xy', scale=1, color='green', label='Velocity')
+        ax.quiver(x, y, vx, vy, angles='xy', scale_units='xy', scale=0.1, color='green', label='Velocity')
         ax.quiver(x, y, fx_adjusted, fy_adjusted, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
         ax.legend()
 
