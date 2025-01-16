@@ -13,11 +13,15 @@ angular_velocity = st.sidebar.slider("Angular Velocity (rad/s)", min_value=0.1, 
 initial_phase = st.sidebar.slider("Initial Phase (radians)", min_value=0.0, max_value=2 * np.pi, value=0.0, step=0.1)
 simulation_speed = st.sidebar.slider("Simulation Speed (x Real Time)", min_value=0.5, max_value=5.0, value=1.0, step=0.1)
 
-# Compute position at a given time
-def compute_position(radius, angular_velocity, initial_phase, time):
+# Compute position, velocity, and force at a given time
+def compute_motion(radius, angular_velocity, initial_phase, time):
     x = radius * np.cos(angular_velocity * time + initial_phase)
     y = radius * np.sin(angular_velocity * time + initial_phase)
-    return x, y
+    vx = -radius * angular_velocity * np.sin(angular_velocity * time + initial_phase)
+    vy = radius * angular_velocity * np.cos(angular_velocity * time + initial_phase)
+    fx = -vx * angular_velocity  # Centripetal force (proportional to acceleration)
+    fy = -vy * angular_velocity
+    return x, y, vx, vy, fx, fy
 
 # Animation display
 st.header("Circular Motion Animation")
@@ -33,6 +37,8 @@ ax.add_artist(circle)
 
 # Particle
 particle, = ax.plot([], [], 'ro', label='Particle')
+velocity_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='green', label='Velocity')
+force_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
 ax.legend()
 
 # Run animation
@@ -46,14 +52,20 @@ if start_button:
     dt = 0.01 / simulation_speed  # Time step based on simulation speed
 
     while not stop_button:
-        x, y = compute_position(radius, angular_velocity, initial_phase, t)
+        x, y, vx, vy, fx, fy = compute_motion(radius, angular_velocity, initial_phase, t)
 
         # Update particle position
         particle.set_data([x], [y])  # Wrap x and y in lists
-        ax.draw_artist(particle)
+        velocity_arrow.set_offsets([x, y])
+        velocity_arrow.set_UVC(vx, vy)
+        force_arrow.set_offsets([x, y])
+        force_arrow.set_UVC(fx, fy)
 
-        # Display updated plot
-        st.pyplot(fig)
+        # Redraw the plot
+        fig.canvas.draw()
+        plot_placeholder = st.empty()
+        with plot_placeholder.container():
+            st.pyplot(fig)
 
         # Increment time
         t += dt
