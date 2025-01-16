@@ -12,15 +12,16 @@ radius = st.sidebar.slider("Radius (m)", min_value=0.5, max_value=10.0, value=5.
 angular_velocity = st.sidebar.slider("Angular Velocity (rad/s)", min_value=0.1, max_value=10.0, value=2.0, step=0.1)
 initial_phase = st.sidebar.slider("Initial Phase (radians)", min_value=0.0, max_value=2 * np.pi, value=0.0, step=0.1)
 simulation_speed = st.sidebar.slider("Simulation Speed (x Real Time)", min_value=0.5, max_value=5.0, value=1.0, step=0.1)
+mass = st.sidebar.slider("Mass of the Object (kg)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
 
 # Compute position, velocity, and force at a given time
-def compute_motion(radius, angular_velocity, initial_phase, time):
+def compute_motion(radius, angular_velocity, initial_phase, time, mass):
     x = radius * np.cos(angular_velocity * time + initial_phase)
     y = radius * np.sin(angular_velocity * time + initial_phase)
     vx = -radius * angular_velocity * np.sin(angular_velocity * time + initial_phase)
     vy = radius * angular_velocity * np.cos(angular_velocity * time + initial_phase)
-    fx = -x * angular_velocity**2
-    fy = -y * angular_velocity**2
+    fx = -mass * x * angular_velocity**2
+    fy = -mass * y * angular_velocity**2
     return x, y, vx, vy, fx, fy
 
 # Animation display
@@ -53,7 +54,7 @@ if start_button:
     dt = 0.01 / simulation_speed  # Time step based on simulation speed
 
     while True:
-        x, y, vx, vy, fx, fy = compute_motion(radius, angular_velocity, initial_phase, t)
+        x, y, vx, vy, fx, fy = compute_motion(radius, angular_velocity, initial_phase, t, mass)
 
         # Update particle position and arrows
         particle.set_data([x], [y])  # Wrap x and y in lists
