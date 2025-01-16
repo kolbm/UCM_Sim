@@ -19,8 +19,8 @@ def compute_motion(radius, angular_velocity, initial_phase, time):
     y = radius * np.sin(angular_velocity * time + initial_phase)
     vx = -radius * angular_velocity * np.sin(angular_velocity * time + initial_phase)
     vy = radius * angular_velocity * np.cos(angular_velocity * time + initial_phase)
-    fx = -vx * angular_velocity  # Centripetal force (proportional to acceleration)
-    fy = -vy * angular_velocity
+    fx = -radius * angular_velocity**2 * np.cos(angular_velocity * time + initial_phase)
+    fy = -radius * angular_velocity**2 * np.sin(angular_velocity * time + initial_phase)
     return x, y, vx, vy, fx, fy
 
 # Animation display
@@ -41,20 +41,20 @@ velocity_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, c
 force_arrow = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
 ax.legend()
 
+# Placeholder for updating plot
+plot_placeholder = st.empty()
+
 # Run animation
 start_button = st.button("Start Simulation")
 
 if start_button:
-    st.write("Press 'Stop' to end the simulation.")
-    stop_button = st.button("Stop Simulation")
-
     t = 0  # Time starts at 0
     dt = 0.01 / simulation_speed  # Time step based on simulation speed
 
-    while not stop_button:
+    while True:
         x, y, vx, vy, fx, fy = compute_motion(radius, angular_velocity, initial_phase, t)
 
-        # Update particle position
+        # Update particle position and arrows
         particle.set_data([x], [y])  # Wrap x and y in lists
         velocity_arrow.set_offsets([x, y])
         velocity_arrow.set_UVC(vx, vy)
@@ -62,13 +62,22 @@ if start_button:
         force_arrow.set_UVC(fx, fy)
 
         # Redraw the plot
-        fig.canvas.draw()
-        plot_placeholder = st.empty()
-        with plot_placeholder.container():
-            st.pyplot(fig)
+        ax.clear()
+        ax.set_xlim(-radius - 1, radius + 1)
+        ax.set_ylim(-radius - 1, radius + 1)
+        ax.set_aspect('equal')
+        ax.grid()
+
+        # Re-add elements
+        ax.add_artist(plt.Circle((0, 0), radius, color='blue', fill=False, linestyle='--'))
+        ax.plot([x], [y], 'ro', label='Particle')
+        ax.quiver(x, y, vx, vy, angles='xy', scale_units='xy', scale=1, color='green', label='Velocity')
+        ax.quiver(x, y, fx, fy, angles='xy', scale_units='xy', scale=1, color='purple', label='Force')
+        ax.legend()
+
+        # Update plot in placeholder
+        plot_placeholder.pyplot(fig)
 
         # Increment time
         t += dt
         time.sleep(dt)
-
-    st.write("Simulation Stopped.")
